@@ -1203,7 +1203,14 @@ FillTupleSlot(const BSON *bsonDocument, const char *bsonDocumentKey,
 		const char *bsonFullKey = NULL;
 		void *hashKey = NULL;
 
-    fprintf(stderr, "In FillTupleSlot while BsonIterNext. bsonType:", bsonType,  "\n");
+    FILE *f = fopen("/tmp/mongo_fdw.log", "w");
+    if (f == NULL)
+    {
+      printf("Error opening file!\n");
+      exit(1);
+    }
+    fprintf(stderr, "In FillTupleSlot while BsonIterNext\n");
+    fprintf(stderr, "bsonType:", bsonType,  "\n");
 
 		columnMapping = NULL;
 		if (bsonDocumentKey != NULL)
