@@ -1325,10 +1325,10 @@ ColumnTypesCompatible(BSON_TYPE bsonType, Oid columnTypeId)
 		case VARCHAROID:
 		case TEXTOID:
 		{
-			if (bsonType == BSON_TYPE_UTF8)
-			{
+			//if (bsonType == BSON_TYPE_UTF8)
+			//{
 				compatibleTypes = true;
-			}
+			//}
 			break;
 		}
 		case BYTEAOID:
