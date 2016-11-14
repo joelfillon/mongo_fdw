@@ -1203,6 +1203,8 @@ FillTupleSlot(const BSON *bsonDocument, const char *bsonDocumentKey,
 		const char *bsonFullKey = NULL;
 		void *hashKey = NULL;
 
+    fprintf(stderr, "In FillTupleSlot while BsonIterNext. bsonType:", bsonType,  "\n");
+
 		columnMapping = NULL;
 		if (bsonDocumentKey != NULL)
 		{
