@@ -1301,6 +1301,9 @@ ColumnTypesCompatible(BSON_TYPE bsonType, Oid columnTypeId)
 	/* we consider the PostgreSQL column type as authoritative */
 	switch(columnTypeId)
 	{
+		elog(ERROR, "elog: in ColumnTypesCompatible columnTypeId");
+		ereport(ERROR, (errcode(ERRCODE_FDW_INVALID_DATA_TYPE),
+				errmsg("ereport: in ColumnTypesCompatible columnTypeId")));
 		case INT2OID: case INT4OID:
 		case INT8OID: case FLOAT4OID:
 		case FLOAT8OID: case NUMERICOID:
