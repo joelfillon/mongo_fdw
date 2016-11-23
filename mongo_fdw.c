@@ -1203,15 +1203,6 @@ FillTupleSlot(const BSON *bsonDocument, const char *bsonDocumentKey,
 		const char *bsonFullKey = NULL;
 		void *hashKey = NULL;
 
-    FILE *f = fopen("/tmp/mongo_fdw.log", "w");
-    if (f == NULL)
-    {
-      printf("Error opening file!\n");
-      exit(1);
-    }
-    fprintf(stderr, "In FillTupleSlot while BsonIterNext\n");
-    fprintf(stderr, "bsonType:", bsonType,  "\n");
-
 		columnMapping = NULL;
 		if (bsonDocumentKey != NULL)
 		{
@@ -1334,10 +1325,11 @@ ColumnTypesCompatible(BSON_TYPE bsonType, Oid columnTypeId)
 		case VARCHAROID:
 		case TEXTOID:
 		{
-			//if (bsonType == BSON_TYPE_UTF8)
-			//{
+			if (bsonType == BSON_TYPE_UTF8 || bsonType == BSON_TYPE_INT32 ||
+                bsonType == BSON_TYPE_DOUBLE || bsonType == BSON_TYPE_DATE_TIME)
+			{
 				compatibleTypes = true;
-			//}
+			}
 			break;
 		}
 		case BYTEAOID:
