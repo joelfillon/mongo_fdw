@@ -1467,10 +1467,11 @@ ColumnValue(BSON_ITERATOR *bsonIterator, Oid columnTypeId, int32 columnTypeMod)
 {
 	Datum columnValue = 0;
 
-	switch(columnTypeId)
 		elog(INFO, "elog: in ColumnValue columnTypeId");
 		ereport(INFO, (errcode(ERRCODE_FDW_INVALID_DATA_TYPE),
 				errmsg("ereport: in ColumnValue columnTypeId")));
+
+	switch(columnTypeId)
 	{
 		case INT2OID:
 		{
