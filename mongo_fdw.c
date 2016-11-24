@@ -1471,7 +1471,7 @@ ColumnValue(BSON_ITERATOR *bsonIterator, Oid columnTypeId, int32 columnTypeMod)
 {
 	Datum columnValue = 0;
 
-    BSON_TYPE bsonType = BsonIterType(&bsonIterator);
+    BSON_TYPE bsonType = BsonIterType(bsonIterator);
 
 	ereport(INFO, (errcode(ERRCODE_FDW_INVALID_DATA_TYPE),
 		errmsg("[start] ColumnValue"),
