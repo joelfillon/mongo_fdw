@@ -1537,7 +1537,8 @@ ColumnValue(BSON_ITERATOR *bsonIterator, Oid columnTypeId, int32 columnTypeMod)
 		case TEXTOID:
 		{
 			const char *value = BsonIterString(bsonIterator);
-			columnValue = CStringGetTextDatum(value);
+			//columnValue = CStringGetTextDatum(value);
+			columnValue = "In TEXTOID";
 			break;
 		}
 		case NAMEOID:
