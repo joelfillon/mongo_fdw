@@ -1298,12 +1298,12 @@ ColumnTypesCompatible(BSON_TYPE bsonType, Oid columnTypeId)
 {
 	bool compatibleTypes = false;
 
+	ereport(INFO, (errcode(ERRCODE_FDW_INVALID_DATA_TYPE),
+					errmsg("elog: in ColumnTypesCompatible"),
+					errhint("Column type: %u, BSON type: %u", (uint32) columnTypeId, (uint32) bsonType)));
 	/* we consider the PostgreSQL column type as authoritative */
 	switch(columnTypeId)
 	{
-		elog(ERROR, "elog: in ColumnTypesCompatible columnTypeId");
-		ereport(ERROR, (errcode(ERRCODE_FDW_INVALID_DATA_TYPE),
-				errmsg("ereport: in ColumnTypesCompatible columnTypeId")));
 		case INT2OID: case INT4OID:
 		case INT8OID: case FLOAT4OID:
 		case FLOAT8OID: case NUMERICOID:
@@ -1311,6 +1311,9 @@ ColumnTypesCompatible(BSON_TYPE bsonType, Oid columnTypeId)
 			if (bsonType == BSON_TYPE_INT32 || bsonType == BSON_TYPE_INT64 ||
 				bsonType == BSON_TYPE_DOUBLE)
 			{
+                ereport(INFO, (errcode(ERRCODE_FDW_INVALID_DATA_TYPE),
+                    errmsg("case INT2OID: INT4OID: INT8OID: FLOAT4OID: FLOAT8OID: NUMERICOID: compatibleTypes = true"),
+                    errhint("Column type: %u, BSON type: %u", (uint32) columnTypeId, (uint32) bsonType)));
 				compatibleTypes = true;
 			}
 			break;
@@ -1331,6 +1334,9 @@ ColumnTypesCompatible(BSON_TYPE bsonType, Oid columnTypeId)
 			if (bsonType == BSON_TYPE_UTF8 || bsonType == BSON_TYPE_INT32 ||
                 bsonType == BSON_TYPE_DOUBLE || bsonType == BSON_TYPE_DATE_TIME)
 			{
+                ereport(INFO, (errcode(ERRCODE_FDW_INVALID_DATA_TYPE),
+                    errmsg("case TEXTOID: compatibleTypes = true"),
+                    errhint("Column type: %u, BSON type: %u", (uint32) columnTypeId, (uint32) bsonType)));
 				compatibleTypes = true;
 			}
 			break;
