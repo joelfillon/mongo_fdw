@@ -1555,6 +1555,7 @@ ColumnValue(BSON_ITERATOR *bsonIterator, BSON_TYPE bsonType, Oid columnTypeId, i
                     break;
                 }
                 case BSON_TYPE_UTF8:
+                {
 			        const char *value = BsonIterString(bsonIterator);
 			        columnValue = CStringGetTextDatum(value);
 			        break;
