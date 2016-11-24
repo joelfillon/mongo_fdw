@@ -134,8 +134,8 @@ static void FillTupleSlot(const BSON *bsonDocument, const char *bsonDocumentKey,
 						HTAB *columnMappingHash, Datum *columnValues,
 						bool *columnNulls);
 static bool ColumnTypesCompatible(BSON_TYPE bsonType, Oid columnTypeId);
-static Datum ColumnValueArray(BSON_ITERATOR *bsonIterator, Oid valueTypeId);
-static Datum ColumnValue(BSON_ITERATOR *bsonIterator, Oid columnTypeId,
+static Datum ColumnValueArray(BSON_ITERATOR *bsonIterator, BSON_TYPE bsonType, Oid valueTypeId);
+static Datum ColumnValue(BSON_ITERATOR *bsonIterator, BSON_TYPE bsonType, Oid columnTypeId,
 						 int32 columnTypeMod);
 static void MongoFreeScanState(MongoFdwModifyState *fmstate);
 static bool MongoAnalyzeForeignTable(Relation relation,
@@ -1272,6 +1272,7 @@ FillTupleSlot(const BSON *bsonDocument, const char *bsonDocumentKey,
 			int32 columnIndex = columnMapping->columnIndex;
 
 			columnValues[columnIndex] = ColumnValueArray(&bsonIterator,
+                                                         bsonType,
 														 columnArrayTypeId);
 			columnNulls[columnIndex] = false;
 		}
@@ -1281,6 +1282,7 @@ FillTupleSlot(const BSON *bsonDocument, const char *bsonDocumentKey,
 			Oid columnTypeMod = columnMapping->columnTypeMod;
 
 			columnValues[columnIndex] = ColumnValue(&bsonIterator,
+                                                    bsonType,
 													columnTypeId, columnTypeMod);
 			columnNulls[columnIndex] = false;
 		}
@@ -1415,7 +1417,7 @@ ColumnTypesCompatible(BSON_TYPE bsonType, Oid columnTypeId)
  * datum from element datums, and returns the array datum.
  */
 static Datum
-ColumnValueArray(BSON_ITERATOR *bsonIterator, Oid valueTypeId)
+ColumnValueArray(BSON_ITERATOR *bsonIterator, BSON_TYPE bsonType, Oid valueTypeId)
 {
 	Datum          *columnValueArray = palloc0(INITIAL_ARRAY_CAPACITY * sizeof(Datum));
 	uint32         arrayCapacity = INITIAL_ARRAY_CAPACITY;
@@ -1448,7 +1450,7 @@ ColumnValueArray(BSON_ITERATOR *bsonIterator, Oid valueTypeId)
 		}
 
 		/* use default type modifier (0) to convert column value */
-		columnValueArray[arrayIndex] = ColumnValue(&bsonSubIterator, valueTypeId, 0);
+		columnValueArray[arrayIndex] = ColumnValue(&bsonSubIterator, bsonType, valueTypeId, 0);
 		arrayIndex++;
 	}
 
@@ -1467,11 +1469,9 @@ ColumnValueArray(BSON_ITERATOR *bsonIterator, Oid valueTypeId)
  * datum. The function then returns this datum.
  */
 static Datum
-ColumnValue(BSON_ITERATOR *bsonIterator, Oid columnTypeId, int32 columnTypeMod)
+ColumnValue(BSON_ITERATOR *bsonIterator, BSON_TYPE bsonType, Oid columnTypeId, int32 columnTypeMod)
 {
 	Datum columnValue = 0;
-
-    BSON_TYPE bsonType = BsonIterType(bsonIterator);
 
 	ereport(INFO, (errcode(ERRCODE_FDW_INVALID_DATA_TYPE),
 		errmsg("[start] ColumnValue"),
