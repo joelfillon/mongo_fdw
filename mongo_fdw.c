@@ -1299,7 +1299,7 @@ ColumnTypesCompatible(BSON_TYPE bsonType, Oid columnTypeId)
 	bool compatibleTypes = false;
 
 	ereport(INFO, (errcode(ERRCODE_FDW_INVALID_DATA_TYPE),
-					errmsg("elog: in ColumnTypesCompatible"),
+					errmsg("[start] ColumnTypesCompatible"),
 					errhint("Column type: %u, BSON type: %u", (uint32) columnTypeId, (uint32) bsonType)));
 	/* we consider the PostgreSQL column type as authoritative */
 	switch(columnTypeId)
@@ -1312,8 +1312,7 @@ ColumnTypesCompatible(BSON_TYPE bsonType, Oid columnTypeId)
 				bsonType == BSON_TYPE_DOUBLE)
 			{
                 ereport(INFO, (errcode(ERRCODE_FDW_INVALID_DATA_TYPE),
-                    errmsg("case INT2OID: INT4OID: INT8OID: FLOAT4OID: FLOAT8OID: NUMERICOID: compatibleTypes = true"),
-                    errhint("Column type: %u, BSON type: %u", (uint32) columnTypeId, (uint32) bsonType)));
+                    errmsg("case INT2OID: INT4OID: INT8OID: FLOAT4OID: FLOAT8OID: NUMERICOID: compatibleTypes = true")));
 				compatibleTypes = true;
 			}
 			break;
@@ -1335,8 +1334,7 @@ ColumnTypesCompatible(BSON_TYPE bsonType, Oid columnTypeId)
                 bsonType == BSON_TYPE_DOUBLE || bsonType == BSON_TYPE_DATE_TIME)
 			{
                 ereport(INFO, (errcode(ERRCODE_FDW_INVALID_DATA_TYPE),
-                    errmsg("case TEXTOID: compatibleTypes = true"),
-                    errhint("Column type: %u, BSON type: %u", (uint32) columnTypeId, (uint32) bsonType)));
+                    errmsg("case TEXTOID: compatibleTypes = true")));
 				compatibleTypes = true;
 			}
 			break;
@@ -1473,9 +1471,11 @@ ColumnValue(BSON_ITERATOR *bsonIterator, Oid columnTypeId, int32 columnTypeMod)
 {
 	Datum columnValue = 0;
 
-		elog(INFO, "elog: in ColumnValue columnTypeId");
-		ereport(INFO, (errcode(ERRCODE_FDW_INVALID_DATA_TYPE),
-				errmsg("ereport: in ColumnValue columnTypeId")));
+    BSON_TYPE bsonType = BsonIterType(&bsonSubIterator);
+
+	ereport(INFO, (errcode(ERRCODE_FDW_INVALID_DATA_TYPE),
+		errmsg("[start] ColumnValue"),
+		errhint("Column type: %u, BSON type: %u", (uint32) columnTypeId, (uint32) bsonType)));
 
 	switch(columnTypeId)
 	{
@@ -1546,10 +1546,20 @@ ColumnValue(BSON_ITERATOR *bsonIterator, Oid columnTypeId, int32 columnTypeMod)
 		}
 		case TEXTOID:
 		{
-			const char *value = BsonIterString(bsonIterator);
-			columnValue = CStringGetTextDatum(value);
-			//columnValue = "In TEXTOID";
-			break;
+	        switch(bsonType)
+	        {
+		        case BSON_TYPE_INT32:
+		        {
+			        int32 value = BsonIterInt32(bsonIterator);
+			        columnValue = Int32GetDatum(value);
+                    break;
+                }
+                case BSON_TYPE_UTF8:
+			        const char *value = BsonIterString(bsonIterator);
+			        columnValue = CStringGetTextDatum(value);
+			        break;
+                }
+            }
 		}
 		case NAMEOID:
 		{
